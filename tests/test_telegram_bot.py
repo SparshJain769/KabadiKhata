@@ -160,6 +160,21 @@ def test_kg_ok_invalid_stays():
     assert msg.reply_text.await_args.args[0] == strings_hi.t("bad_weight")
 
 
+def test_hisaab_sends_income_image():
+    ud = {"name": "Raju", "locality": "seelampur", "state": "ready"}
+    update, msg = _cb_update("")  # provides effective_message + effective_user.id
+    asyncio.run(tb.hisaab_cmd(update, _ctx(ud)))
+    msg.reply_photo.assert_awaited_once()
+    assert msg.reply_photo.await_args.kwargs["photo"][:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_hisaab_before_registration():
+    update, msg = _cb_update("")
+    asyncio.run(tb.hisaab_cmd(update, _ctx({})))
+    msg.reply_photo.assert_not_awaited()
+    assert msg.reply_text.await_args.args[0] == strings_hi.t("need_start")
+
+
 def test_unregistered_callback_routes_to_start():
     ud = {}
     update, msg = _cb_update("mat:PET")
