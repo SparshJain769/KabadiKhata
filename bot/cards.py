@@ -188,3 +188,57 @@ def save_receipt_card(receipt: dict, path: str) -> str:
     with open(path, "wb") as f:
         f.write(make_receipt_card(receipt))
     return path
+
+
+def _stat_tile(d, x, y, w, label, value):
+    d.rounded_rectangle([x, y, x + w, y + 92], radius=14, fill=(238, 247, 241))
+    d.text((x + 16, y + 14), label, font=_font(15), fill=GREEN_DK)
+    d.text((x + 16, y + 40), str(value), font=_font(30, bold=True), fill=GREEN_DK)
+
+
+def make_hisaab_card(data: dict) -> bytes:
+    """Render a shareable 'Mera Hisaab' income statement from a hisaab dict
+    (name, month_kg, month_inr, count, today_kg, today_inr, chain_verified)."""
+    H2 = 720
+    img = Image.new("RGB", (W, H2), BG)
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([16, 16, W - 16, H2 - 16], radius=22, fill=CARD, outline=LINE, width=2)
+    d.rounded_rectangle([16, 16, W - 16, 110], radius=22, fill=GREEN)
+    d.rectangle([16, 70, W - 16, 110], fill=GREEN)
+    d.text((PAD, 34), "Mera Hisaab", font=_font(32, bold=True), fill=(255, 255, 255))
+    d.text((PAD, 74), "Income statement · proof of income", font=_font(16), fill=(223, 240, 230))
+
+    name = str(data.get("name", "-"))
+    month = str(data.get("month", "This month"))
+    d.text((PAD, 134), name, font=_font(30, bold=True), fill=INK)
+    d.text((PAD, 178), month, font=_font(18), fill=MUTED)
+
+    y = 220
+    tile_w = (W - 2 * PAD - 2 * 14) // 3
+    _stat_tile(d, PAD, y, tile_w, "Total (month)", _money(data.get("month_inr", 0)))
+    _stat_tile(d, PAD + tile_w + 14, y, tile_w, "Kilos (month)", f"{data.get('month_kg', 0):g}")
+    _stat_tile(d, PAD + 2 * (tile_w + 14), y, tile_w, "Receipts", data.get("count", 0))
+
+    y = 340
+    today = f"Aaj: {data.get('today_kg', 0):g} kg · {_money(data.get('today_inr', 0))}"
+    d.text((PAD, y), today, font=_font(20), fill=INK)
+
+    y = 392
+    if data.get("chain_verified", True):
+        d.line([(PAD, y + 12), (PAD + 6, y + 18)], fill=GREEN, width=3)
+        d.line([(PAD + 6, y + 18), (PAD + 17, y + 5)], fill=GREEN, width=3)
+        d.text((PAD + 26, y), "All receipts chain verified", font=_font(18, bold=True), fill=GREEN)
+
+    d.text((PAD, y + 44), "Yeh record loan (PM SVANidhi jaisa) ke liye kaam aata hai.", font=_font(15), fill=MUTED)
+
+    qr_img = _qr(f"KK-HISAAB:{name}:{data.get('count', 0)}", box=4).resize((132, 132), Image.NEAREST)
+    img.paste(qr_img, (W - PAD - 132, y - 8))
+
+    if data.get("synthetic", True):
+        img = Image.alpha_composite(img.convert("RGBA"), _watermark((W, H2))).convert("RGB")
+        d = ImageDraw.Draw(img)
+        d.text((PAD, H2 - 50), "Demo data — asli collection nahi", font=_font(15), fill=MUTED)
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()

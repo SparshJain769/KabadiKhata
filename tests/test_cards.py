@@ -6,7 +6,7 @@ import sys
 from PIL import Image
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from bot.cards import make_receipt_card  # noqa: E402
+from bot.cards import make_hisaab_card, make_receipt_card  # noqa: E402
 
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 
@@ -45,3 +45,15 @@ def test_non_synthetic_receipt_renders():
 
 def test_unknown_material_does_not_crash():
     assert make_receipt_card(_receipt(material="unknown"))[:8] == PNG_MAGIC
+
+
+def test_make_hisaab_card_returns_png():
+    data = {"name": "Raju", "month": "October 2026", "month_kg": 842, "month_inr": 11230,
+            "count": 63, "today_kg": 37, "today_inr": 505, "chain_verified": True, "synthetic": True}
+    out = make_hisaab_card(data)
+    assert out[:8] == PNG_MAGIC
+    assert Image.open(io.BytesIO(out)).size == (640, 720)
+
+
+def test_make_hisaab_card_minimal_dict():
+    assert make_hisaab_card({"name": "Raju"})[:8] == PNG_MAGIC

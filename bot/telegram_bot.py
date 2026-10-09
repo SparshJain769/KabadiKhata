@@ -40,10 +40,8 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from telegram.helpers import escape_markdown
-
 import bot.mock_api as api  # <- the swap point (see module docstring)
-from bot.cards import make_receipt_card
+from bot.cards import make_hisaab_card, make_receipt_card
 from bot.strings_hi import MATERIAL_ORDER, material_label, t
 
 logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s %(message)s", level=logging.INFO)
@@ -218,15 +216,9 @@ async def hisaab_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _registered(ud):
         await msg.reply_text(t("need_start"))
         return
-    uid = update.effective_user.id
-    r = api.hisaab("kab_" + str(uid))
-    text = t(
-        "hisaab_summary",
-        name=escape_markdown(ud["name"], version=1),  # override the mock's hardcoded name
-        today_kg=r["today_kg"], today_inr=r["today_inr"],
-        month_kg=r["month_kg"], month_inr=r["month_inr"], count=r["count"],
-    )
-    await msg.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+    r = dict(api.hisaab("kab_" + str(update.effective_user.id)))
+    r["name"] = ud["name"]  # override the mock's hardcoded name with the registered name
+    await msg.reply_photo(photo=make_hisaab_card(r), caption=t("hisaab_button"))
 
 
 @safe
