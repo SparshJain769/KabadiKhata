@@ -45,6 +45,13 @@ HI = {
     "btn_no": "Nahi",
     "btn_confirm": "Pakka ✅",
     "btn_cancel": "Cancel",
+    "btn_retry": "Dobara batao",
+    "need_start": "Pehle /start karke naam aur ilaaka set karo.",
+    "voice_soon": "Voice support aa raha hai — abhi button se batao.",
+    "bad_weight": "Weight theek nahi laga. Dobara daalo (0–500 kg).",
+    "cancelled": "Theek hai, cancel kar diya.",
+    "demo_on": "Demo mismatch: ON",
+    "demo_off": "Demo mismatch: OFF",
 }
 
 EN = {
@@ -79,6 +86,13 @@ EN = {
     "btn_no": "No",
     "btn_confirm": "Confirm ✅",
     "btn_cancel": "Cancel",
+    "btn_retry": "Tell me again",
+    "need_start": "Please /start first to set your name and area.",
+    "voice_soon": "Voice support is coming — please use the buttons for now.",
+    "bad_weight": "That weight doesn't look right. Enter again (0-500 kg).",
+    "cancelled": "Okay, cancelled.",
+    "demo_on": "Demo mismatch: ON",
+    "demo_off": "Demo mismatch: OFF",
 }
 
 # Material labels shown on the tap-button grid (Hinglish primary).
