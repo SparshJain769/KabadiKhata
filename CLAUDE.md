@@ -21,6 +21,7 @@ Build the **spine (P0)** first and do not start anything else until all 4 beats 
 ## Hard constraints
 - **Build It only.** No AWS account, Bedrock, S3, DynamoDB or Cognito. The AWS open-source tools we use: **Strands Agents, Cedar, SAM CLI (`sam local invoke`), OpenSearch** (read-only search copy, ADR 0002).
 - **LLM:** Gemini (or OpenAI) through Strands' non-Bedrock model provider. Always pass the model explicitly, because Strands defaults to Bedrock.
+- **Perception (P1) is the exception:** `read_photo` and `transcribe` call their providers directly, not through Strands. Photos: Groq (`qwen/qwen3.8-27b`, rotating `GROQ_API_KEYS`) first via `VISION_PROVIDER=groq`, then Gemini, OpenAI or xAI as fallbacks. Voice: Sarvam Saaras, then Gemini. None of these is an AWS service, so Build It still holds; the code checks every answer either way.
 - **Hackathon rules:** no code written before the clock started; repo history must match the event dates; every member commits every day; list the AI coding tools used in the README; credit every dataset, icon and library with its licence.
 - **Never commit secrets.** API keys and the Telegram token live in `.env` (gitignored). `.env.example` has placeholders only.
 - **Only build what appears in the 3-minute video.** Anything else waits until after submission.
@@ -62,7 +63,7 @@ Build the **spine (P0)** first and do not start anything else until all 4 beats 
    - Add realistic noise to the honest recyclers (±10–15% month to month).
    - `eval/radar_eval.py` reports the **smallest ratio caught with zero false flags on honest recyclers**, plus precision/recall per rule.
    - Put that number in the README and the video.
-6. **Held-out photo evaluation.** Split our own photos 20 for tuning and 10 held out, in `data/real_own/split.csv`. Prompts are tuned on the tuning set only. `eval/photo_eval.py` reports kg accuracy (within ±5%) and material accuracy **on the held-out set only**, and states n.
+6. **Held-out photo evaluation.** The photos are the team's 30 AI-generated kabadi scale images (Kaggle `oneshikaaa/kabadiwala`, labelled synthetic), split 20 for tuning and 10 held out in `data/eval_photos/labels.csv` (`split` column); the held-out labels are confirmed by a person. Real phone photos go in the same file as `set=real` and are reported separately. Prompts are tuned on the tuning set only. `eval/photo_eval.py` reports kg accuracy (within ±5%, plus within ±1 kg) and material accuracy **on the held-out set only**, and states n.
 7. **Give Raju a real reason to use it: a verified income statement.**
    - The "मेरा हिसाब" (my account) button returns a shareable **image**: name, month, receipt count, total kg, total ₹, chain-verified ✓, and a QR code linking to the verify endpoint.
    - Frame it as proof of income (e.g. for PM SVANidhi-style micro-loans).
