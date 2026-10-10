@@ -28,6 +28,11 @@ bot:
 console:
 	KK_USE_MOCK=0 uv run streamlit run console/app.py --server.headless true --server.port 8501
 
+# WhatsApp (Twilio sandbox) webhook. Talks to the real API; expose it with ngrok
+# and set the sandbox webhook to https://<ngrok>/whatsapp (see docs/whatsapp_runbook.md).
+whatsapp:
+	KK_USE_MOCK=0 uv run uvicorn bot.whatsapp_webhook:app --port 8080 --reload
+
 # Rebuilds data/kk.db from data/synth/world.json (P1 generates it)
 seed:
 	uv run python -m ledger.seed
